@@ -70,3 +70,11 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Server error' })
   }
 }
+
+exports.getMe = async (req, res) => {
+  // isi token biasanya: { id, username }
+  res.json({
+    id: req.user.id,
+    username: req.user.username
+  })
+}

@@ -1,6 +1,7 @@
 const pool = require('../config/database')
 
 exports.createQuestion = async (req, res) => {
+  const { tryoutId } = req.params
   const { text, options, explanation, videoUrl } = req.body
 
   if (!text || !options || options.length < 2) {
@@ -13,15 +14,17 @@ exports.createQuestion = async (req, res) => {
     await connection.beginTransaction()
 
     const [result] = await connection.query(
-      'INSERT INTO questions (text, explanation, video_url) VALUES (?, ?, ?)',
-      [text, explanation || null, videoUrl || null]
+      `INSERT INTO questions (tryout_id, text, explanation, video_url)
+       VALUES (?, ?, ?, ?)`,
+      [tryoutId, text, explanation || null, videoUrl || null]
     )
 
     const questionId = result.insertId
 
     for (const option of options) {
       await connection.query(
-        'INSERT INTO options (question_id, text, is_correct) VALUES (?, ?, ?)',
+        `INSERT INTO options (question_id, text, is_correct)
+         VALUES (?, ?, ?)`,
         [questionId, option.text, option.isCorrect]
       )
     }
@@ -37,8 +40,13 @@ exports.createQuestion = async (req, res) => {
   }
 }
 
-exports.getQuestions = async (req, res) => {
-  const [questions] = await pool.query('SELECT * FROM questions')
+exports.getQuestionsByTryout = async (req, res) => {
+  const { tryoutId } = req.params
+
+  const [questions] = await pool.query(
+    'SELECT * FROM questions WHERE tryout_id = ?',
+    [tryoutId]
+  )
 
   for (const q of questions) {
     const [options] = await pool.query(
@@ -50,3 +58,4 @@ exports.getQuestions = async (req, res) => {
 
   res.json(questions)
 }
+

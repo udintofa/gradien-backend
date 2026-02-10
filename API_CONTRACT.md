@@ -125,7 +125,7 @@ Response:
 
 ### Get Materials by Course
 
-**GET** `/courses/:courseId/materials`
+**GET** `materials/courses/:courseId`
 
 Response:
 ```json
