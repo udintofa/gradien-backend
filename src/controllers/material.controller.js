@@ -1,25 +1,48 @@
 const db = require("../config/database");
 
 exports.createMaterial = async (req, res) => {
-  const { course_id, title, content, video_url } = req.body;
+  const materials = req.body;
 
-  if (!course_id || !title) {
+  // body harus array
+  if (!Array.isArray(materials) || materials.length === 0) {
     return res.status(400).json({
-      message: "course_id dan title wajib diisi",
+      message: "Body harus berupa array dan tidak boleh kosong",
     });
   }
 
-  const [result] = await db.query(
-    `INSERT INTO materials (course_id, title, content, video_url)
-     VALUES (?, ?, ?, ?)`,
-    [course_id, title, content, video_url]
-  );
+  const values = [];
 
-  res.status(201).json({
-    message: "Material berhasil dibuat",
-    material_id: result.insertId,
-  });
+  for (let i = 0; i < materials.length; i++) {
+    const { course_id, title, content, video_url } = materials[i];
+
+    // validasi semua wajib
+    if (!course_id || !title || !content || !video_url) {
+      return res.status(400).json({
+        message: `Data ke-${i + 1} tidak lengkap. Semua field wajib diisi`,
+      });
+    }
+
+    values.push([course_id, title, content, video_url]);
+  }
+
+  try {
+    await db.query(
+      `INSERT INTO materials (course_id, title, content, video_url)
+       VALUES ?`,
+      [values]
+    );
+
+    res.status(201).json({
+      message: `${values.length} material berhasil ditambahkan`,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Gagal menyimpan material",
+    });
+  }
 };
+
 
 exports.getMaterialsByCourse = async (req, res) => {
   const { courseId } = req.params;

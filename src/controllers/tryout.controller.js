@@ -1,25 +1,55 @@
 const db = require("../config/database");
 
 exports.createTryout = async (req, res) => {
-  const { course_id, title, description, duration_minutes } = req.body;
+  const tryouts = req.body;
 
-  if (!course_id || !title || !duration_minutes) {
+  // harus array
+  if (!Array.isArray(tryouts) || tryouts.length === 0) {
     return res.status(400).json({
-      message: "course_id, title, dan duration_minutes wajib",
+      message: "Body harus berupa array dan tidak boleh kosong",
     });
   }
 
-  const [result] = await db.query(
-    `INSERT INTO tryouts (course_id, title, description, duration_minutes)
-     VALUES (?, ?, ?, ?)`,
-    [course_id, title, description, duration_minutes]
-  );
+  const values = [];
 
-  res.status(201).json({
-    message: "Tryout berhasil dibuat",
-    tryout_id: result.insertId,
-  });
+  for (let i = 0; i < tryouts.length; i++) {
+    const { course_id, title, description, duration_minutes } = tryouts[i];
+
+    // semua wajib diisi
+    if (!course_id || !title || !description || !duration_minutes) {
+      return res.status(400).json({
+        message: `Data ke-${i + 1} tidak lengkap. Semua field wajib diisi`,
+      });
+    }
+
+    // validasi tambahan (biar gak aneh-aneh)
+    if (duration_minutes <= 0) {
+      return res.status(400).json({
+        message: `Data ke-${i + 1} duration_minutes harus lebih dari 0`,
+      });
+    }
+
+    values.push([course_id, title, description, duration_minutes]);
+  }
+
+  try {
+    await db.query(
+      `INSERT INTO tryouts (course_id, title, description, duration_minutes)
+       VALUES ?`,
+      [values]
+    );
+
+    res.status(201).json({
+      message: `${values.length} tryout berhasil dibuat`,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Gagal membuat tryout",
+    });
+  }
 };
+
 
 exports.getTryoutsByCourse = async (req, res) => {
   const { courseId } = req.params;

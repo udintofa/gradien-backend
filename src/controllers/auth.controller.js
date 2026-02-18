@@ -4,10 +4,10 @@ const { hashPassword, comparePassword } = require('../utils/hash')
 const { v4: uuidv4 } = require('uuid')
 
 exports.register = async (req, res) => {
-  const { username, password } = req.body
+  const { username, password, full_name, school_name, nickname, grade, major } = req.body
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username dan password wajib diisi' })
+  if (!username || !password || !full_name || !school_name || !nickname || !grade || !major) {
+    return res.status(400).json({ message: 'Seluruh field wajib diisi' })
   }
 
   try {
@@ -23,8 +23,8 @@ exports.register = async (req, res) => {
     const passwordHash = await hashPassword(password)
 
     await pool.query(
-      'INSERT INTO users (id, username, password_hash) VALUES (?, ?, ?)',
-      [uuidv4(), username, passwordHash]
+      'INSERT INTO users (id, username, password_hash, full_name, school_name, nickname, grade, major) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [uuidv4(), username, passwordHash, full_name, school_name, nickname, grade, major]
     )
 
     res.status(201).json({ message: 'Register berhasil' })
@@ -72,9 +72,21 @@ exports.login = async (req, res) => {
 }
 
 exports.getMe = async (req, res) => {
-  // isi token biasanya: { id, username }
-  res.json({
-    id: req.user.id,
-    username: req.user.username
-  })
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, username, full_name, school_name, nickname, grade, major
+       FROM users
+       WHERE id = ?`,
+      [req.user.userId]
+    )
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'User tidak ditemukan' })
+    }
+
+    res.json(rows[0])
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Server error' })
+  }
 }
