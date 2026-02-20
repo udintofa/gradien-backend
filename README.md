@@ -283,5 +283,8 @@ Dokumentasi ini bertujuan agar:
 
 ---
 
-Jika ada perubahan skema atau flow, dokumentasi ini **wajib diperbarui**.
+## 17. Full API Documentation
 
+Dokumentasi API selengkapnya tersedia di
+
+https://documenter.getpostman.com/view/42941905/2sBXcEjfr6
