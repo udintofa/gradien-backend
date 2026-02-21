@@ -23,8 +23,8 @@ exports.register = async (req, res) => {
     const passwordHash = await hashPassword(password)
 
     await pool.query(
-      'INSERT INTO users (id, username, password_hash, full_name, school_name, nickname, grade, major) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [uuidv4(), username, passwordHash, full_name, school_name, nickname, grade, major]
+      'INSERT INTO users (id, username, password_hash, full_name, school_name, nickname, grade, major, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [uuidv4(), username, passwordHash, full_name, school_name, nickname, grade, major, 'user']
     )
 
     res.status(201).json({ message: 'Register berhasil' })
@@ -59,7 +59,10 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user.id },
+      { 
+        userId: user.id,
+        role: user.role
+      },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     )
@@ -74,7 +77,7 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT id, username, full_name, school_name, nickname, grade, major
+      `SELECT id, username, full_name, school_name, nickname, grade, major, role
        FROM users
        WHERE id = ?`,
       [req.user.userId]

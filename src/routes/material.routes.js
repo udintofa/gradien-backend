@@ -1,11 +1,42 @@
 const express = require("express");
 const router = express.Router();
 const materialController = require("../controllers/material.controller");
+const auth = require('../middlewares/auth.middleware')
+const authorize = require('../middlewares/role.middleware')
 
-router.post("/", materialController.createMaterial);
-router.get("/course/:courseId", materialController.getMaterialsByCourse);
-router.get("/:id", materialController.getMaterialById);
-router.put("/:id", materialController.updateMaterial);
-router.delete("/:id", materialController.deleteMaterial);
+
+//PUBLIC
+router.get(
+    "/course/:courseId",
+    auth,
+    materialController.getMaterialsByCourse
+);
+router.get(
+    "/:id",
+    auth,
+    materialController.getMaterialById
+);
+
+// PRETECTED 
+router.post(
+    "/",
+    auth,
+    authorize,
+    materialController.createMaterial
+);
+
+router.put(
+    "/:id",
+    auth,
+    authorize,
+    materialController.updateMaterial
+);
+
+router.delete(
+    "/:id",
+    auth,
+    authorize,
+    materialController.deleteMaterial
+);
 
 module.exports = router;

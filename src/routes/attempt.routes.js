@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const attempt = require('../controllers/attempt.controller');
 const auth = require('../middlewares/auth.middleware');
+const authorize = require('../middlewares/role.middleware')
 
 // start tryout
 router.post('/tryouts/:tryoutId/start', auth, attempt.start);

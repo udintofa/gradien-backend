@@ -22,10 +22,6 @@ app.use("/api/materials", materialRoutes);
 app.use("/api/tryouts", tryoutRoutes);
 app.use("/api/attempts", attemptRoutes);
 
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
-
 /* ================= FRONTEND ================= */
 
 const path = require("path");
