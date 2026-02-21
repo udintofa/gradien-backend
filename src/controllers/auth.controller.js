@@ -43,7 +43,7 @@ exports.login = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      'SELECT id, password_hash FROM users WHERE username = ?',
+      'SELECT id, password_hash, role FROM users WHERE username = ?',
       [username]
     )
 
@@ -67,7 +67,10 @@ exports.login = async (req, res) => {
       { expiresIn: '1d' }
     )
 
-    res.json({ token })
+    res.json({
+      token,
+      role: user.role
+    })
   } catch (err) {
     console.error(err)
     res.status(500).json({ message: 'Server error' })
@@ -88,6 +91,37 @@ exports.getMe = async (req, res) => {
     }
 
     res.json(rows[0])
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Server error' })
+  }
+}
+
+exports.registerNonuser = async (req, res) => {
+  const { username, password, full_name, school_name, nickname, grade, major, role } = req.body
+
+  if (!username || !password || !full_name || !school_name || !nickname || !grade || !major || !role) {
+    return res.status(400).json({ message: 'Seluruh field wajib diisi' })
+  }
+
+  try {
+    const [existing] = await pool.query(
+      'SELECT id FROM users WHERE username = ?',
+      [username]
+    )
+
+    if (existing.length > 0) {
+      return res.status(409).json({ message: 'Username sudah digunakan' })
+    }
+
+    const passwordHash = await hashPassword(password)
+
+    await pool.query(
+      'INSERT INTO users (id, username, password_hash, full_name, school_name, nickname, grade, major, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [uuidv4(), username, passwordHash, full_name, school_name, nickname, grade, major, role]
+    )
+
+    res.status(201).json({ message: 'Register berhasil' })
   } catch (err) {
     console.error(err)
     res.status(500).json({ message: 'Server error' })
