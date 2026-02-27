@@ -7,6 +7,7 @@ const courseRoutes = require("./routes/course.routes");
 const materialRoutes = require("./routes/material.routes");
 const tryoutRoutes = require("./routes/tryout.routes");
 const attemptRoutes = require("./routes/attempt.routes");
+const subtryoutRoutes = require("./routes/subtryout.routes");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/materials", materialRoutes);
 app.use("/api/tryouts", tryoutRoutes);
 app.use("/api/attempts", attemptRoutes);
+app.use("/api/subtryouts", subtryoutRoutes);
 
 /* ================= FRONTEND ================= */
 

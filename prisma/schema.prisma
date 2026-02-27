@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -70,42 +69,60 @@ model options {
 }
 
 model questions {
-  id          Int       @id @default(autoincrement())
-  text        String    @db.Text
-  explanation String?   @db.Text
-  video_url   String?   @db.Text
-  created_at  DateTime? @default(now()) @db.Timestamp(0)
-  tryout_id   Int
-  answers     answers[]
-  options     options[]
-  tryouts     tryouts   @relation(fields: [tryout_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_question_tryout")
+  id            Int         @id @default(autoincrement())
+  text          String      @db.Text
+  explanation   String?     @db.Text
+  video_url     String?     @db.Text
+  created_at    DateTime?   @default(now()) @db.Timestamp(0)
+  sub_tryout_id Int
+  answers       answers[]
+  options       options[]
+  sub_tryouts   sub_tryouts @relation(fields: [sub_tryout_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_questions_sub_tryout")
 
-  @@index([tryout_id], map: "fk_question_tryout")
+  @@index([sub_tryout_id], map: "fk_questions_sub_tryout")
 }
 
 model tryouts {
-  id               Int         @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   course_id        Int
-  title            String      @db.VarChar(255)
-  description      String?     @db.Text
+  title            String        @db.VarChar(255)
+  description      String?       @db.Text
   duration_minutes Int?
-  created_at       DateTime?   @default(now()) @db.Timestamp(0)
+  created_at       DateTime?     @default(now()) @db.Timestamp(0)
   attempts         attempts[]
-  questions        questions[]
-  courses          courses     @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tryout_course")
+  sub_tryouts      sub_tryouts[]
+  courses          courses       @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tryout_course")
 
   @@index([course_id], map: "fk_tryout_course")
 }
 
 model users {
-  id            String     @id @db.Char(36)
-  username      String     @unique(map: "username") @db.VarChar(50)
-  password_hash String     @db.VarChar(255)
-  created_at    DateTime?  @default(now()) @db.Timestamp(0)
-  full_name     String     @db.VarChar(100)
-  school_name   String     @db.VarChar(100)
-  nickname      String     @db.VarChar(100)
+  id            String      @id @db.Char(36)
+  username      String      @unique(map: "username") @db.VarChar(50)
+  password_hash String      @db.VarChar(255)
+  created_at    DateTime?   @default(now()) @db.Timestamp(0)
+  full_name     String      @db.VarChar(100)
+  school_name   String      @db.VarChar(100)
+  nickname      String      @db.VarChar(100)
   grade         Int
-  major         String?    @db.VarChar(100)
+  major         String?     @db.VarChar(100)
+  role          users_role? @default(user)
   attempts      attempts[]
+}
+
+model sub_tryouts {
+  id          Int         @id @default(autoincrement())
+  tryout_id   Int
+  title       String      @db.VarChar(255)
+  description String?     @db.Text
+  questions   questions[]
+  tryouts     tryouts     @relation(fields: [tryout_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "sub_tryouts_ibfk_1")
+
+  @@index([tryout_id], map: "tryout_id")
+}
+
+enum users_role {
+  user
+  mentor
+  admin
 }

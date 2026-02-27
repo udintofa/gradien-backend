@@ -1,36 +1,38 @@
 const express = require("express");
 const router = express.Router();
+
+const subtryoutController = require("../controllers/subtryout.controller");
 const auth = require("../middlewares/auth.middleware");
 const authorize = require("../middlewares/role.middleware");
-const controller = require("../controllers/question.controller");
 
-// ================= PUBLIC =================
+// PUBLIC
 router.get(
-  "/tryouts/:tryoutId/questions",
+  "/course/:courseId",
   auth,
-  controller.getQuestionsByTryout,
+  subtryoutController.getSubtryoutsByTryout,
 );
+router.get("/:id", auth, subtryoutController.getSubtryoutById);
 
-// ================= PROTECTED =================
+// PROTECTED (mentor & admin only)
 router.post(
-  "/tryouts/:tryoutId/questions",
+  "/",
   auth,
   authorize("mentor", "admin"),
-  controller.createQuestion,
+  subtryoutController.createSubtryout,
 );
 
 router.put(
-  "/questions/:questionId",
+  "/:id",
   auth,
   authorize("mentor", "admin"),
-  controller.updateQuestion,
+  subtryoutController.updateSubtryout,
 );
 
 router.delete(
-  "/questions/:questionId",
+  "/:id",
   auth,
   authorize("mentor", "admin"),
-  controller.deleteQuestion,
+  subtryoutController.deleteSubtryout,
 );
 
 module.exports = router;
