@@ -11,6 +11,7 @@ router.get(
   auth,
   subtryoutController.getSubtryoutsByTryout,
 );
+
 router.get("/:id", auth, subtryoutController.getSubtryoutById);
 
 // PROTECTED (mentor & admin only)

@@ -54,7 +54,7 @@ exports.createSubtryout = async (req, res) => {
       return res.status(400).json({ message: "Semua wajib diisi" });
     }
 
-    const [result] = await db.query(
+    await db.query(
       `INSERT INTO subtryouts 
        (tryout_id, title, description, duration, order_number)
        VALUES (?, ?, ?, ?, ?)`,
@@ -62,12 +62,7 @@ exports.createSubtryout = async (req, res) => {
     );
 
     return res.status(201).json({
-      id: result.insertId,
-      tryout_id,
-      title,
-      description,
-      duration,
-      order_number,
+      message: "Subtryout berhasil dibuat",
     });
   } catch (error) {
     console.error("Error createSubtryout:", error);

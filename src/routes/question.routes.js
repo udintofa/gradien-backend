@@ -20,14 +20,14 @@ router.post(
 );
 
 router.put(
-  "/questions/:questionId",
+  "/:questionId",
   auth,
   authorize("mentor", "admin"),
   controller.updateQuestion,
 );
 
 router.delete(
-  "/questions/:questionId",
+  "/:questionId",
   auth,
   authorize("mentor", "admin"),
   controller.deleteQuestion,
