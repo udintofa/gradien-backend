@@ -1,7 +1,7 @@
 const pool = require("../config/database");
 
 exports.createQuestion = async (req, res) => {
-  const { tryoutId } = req.params;
+  const { subtryoutId } = req.params;
   const { text, options, explanation, videoUrl } = req.body;
 
   if (!text || !options || options.length < 2) {
@@ -14,9 +14,9 @@ exports.createQuestion = async (req, res) => {
     await connection.beginTransaction();
 
     const [result] = await connection.query(
-      `INSERT INTO questions (tryout_id, text, explanation, video_url)
+      `INSERT INTO questions (sub_tryout_id, text, explanation, video_url)
        VALUES (?, ?, ?, ?)`,
-      [tryoutId, text, explanation || null, videoUrl || null],
+      [subtryoutId, text, explanation || null, videoUrl || null],
     );
 
     const questionId = result.insertId;
@@ -40,12 +40,12 @@ exports.createQuestion = async (req, res) => {
   }
 };
 
-exports.getQuestionsByTryout = async (req, res) => {
-  const { tryoutId } = req.params;
+exports.getQuestionsBySubtryout = async (req, res) => {
+  const { subtryoutId } = req.params;
 
   const [questions] = await pool.query(
-    "SELECT * FROM questions WHERE tryout_id = ?",
-    [tryoutId],
+    "SELECT * FROM questions WHERE sub_tryout_id = ?",
+    [subtryoutId],
   );
 
   for (const q of questions) {

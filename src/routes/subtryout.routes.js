@@ -7,7 +7,7 @@ const authorize = require("../middlewares/role.middleware");
 
 // PUBLIC
 router.get(
-  "/course/:courseId",
+  "/tryout/:tryoutId",
   auth,
   subtryoutController.getSubtryoutsByTryout,
 );

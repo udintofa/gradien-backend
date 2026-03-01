@@ -6,14 +6,14 @@ const controller = require("../controllers/question.controller");
 
 // ================= PUBLIC =================
 router.get(
-  "/tryouts/:tryoutId/questions",
+  "/subtryouts/:subtryoutId",
   auth,
-  controller.getQuestionsByTryout,
+  controller.getQuestionsBySubtryout,
 );
 
 // ================= PROTECTED =================
 router.post(
-  "/tryouts/:tryoutId/questions",
+  "/subtryouts/:subtryoutId",
   auth,
   authorize("mentor", "admin"),
   controller.createQuestion,
